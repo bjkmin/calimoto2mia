@@ -33,6 +33,8 @@
 
 <div class="card">
   <input type="file" id="file" accept=".gpx,application/gpx+xml,text/xml">
+  <div style="margin-top:12px"><a href="#" id="pasteToggle" style="color:var(--acc);font-size:14px;text-decoration:none">File won't load? → paste the GPX text instead</a></div>
+  <textarea id="paste" rows="6" style="display:none;width:100%;margin-top:10px;background:var(--bg);color:var(--fg);border:1px solid #2a3340;border-radius:10px;padding:10px;font:12px/1.4 ui-monospace,monospace" placeholder="Open the .gpx in any text viewer app, select all, copy — paste it here."></textarea>
   <label class="ele"><input type="checkbox" id="ele"> fetch real elevations online (open-meteo.com)</label>
   <div style="margin-top:16px"><button id="go" disabled>Convert</button></div>
   <div class="log" id="log"></div>
@@ -77,13 +79,33 @@ async function fetchElevations(pts) {
   return eles;
 }
 
-$("#file").addEventListener("change", () => { $("#go").disabled = !$("#file").files.length; $("#dl").style.display = "none"; });
+function ready() { return $("#file").files.length || $("#paste").value.trim(); }
+$("#file").addEventListener("change", () => { $("#go").disabled = !ready(); $("#dl").style.display = "none"; });
+$("#paste").addEventListener("input", () => { $("#go").disabled = !ready(); });
+$("#pasteToggle").addEventListener("click", (e) => {
+  e.preventDefault();
+  const p = $("#paste");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+  if (p.style.display === "block") p.focus();
+});
 
 $("#go").addEventListener("click", async () => {
-  const f = $("#file").files[0]; if (!f) return;
   $("#go").disabled = true; $("#log").innerHTML = ""; $("#dl").style.display = "none";
   try {
-    const doc = new DOMParser().parseFromString(await f.text(), "application/xml");
+    let text, base = "tour";
+    const f = $("#file").files[0];
+    if (f) {
+      base = f.name.replace(/\.gpx$/i, "");
+      try { text = await f.text(); }
+      catch (err) {
+        log(`Could not read "${f.name}" from your phone (${err.message || err}). The picker entry is a cloud placeholder or stale shortcut, not the actual file. Fix: open the tour .gpx once in your Files app so it downloads to the device, then re-pick it from Downloads — or paste its text below.`, "err");
+        $("#paste").style.display = "block"; $("#paste").focus();
+        return;
+      }
+    } else {
+      text = $("#paste").value;
+    }
+    const doc = new DOMParser().parseFromString(text, "application/xml");
     if (doc.getElementsByTagName("parsererror").length) throw new Error("File is not valid XML/GPX");
 
     // collect route points (fall back to an existing track)
@@ -152,7 +174,6 @@ $("#go").addEventListener("click", async () => {
     const nWpt = chk.getElementsByTagName("wpt").length;
     if (!nTrk) throw new Error("Internal error: produced file has no track points");
 
-    const base = f.name.replace(/\.gpx$/i, "");
     const blob = new Blob([xml], { type: "application/gpx+xml" });
     const dl = $("#dl");
     dl.href = URL.createObjectURL(blob);
