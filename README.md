@@ -5,8 +5,8 @@ Kurviger round-trip.
 
 ## Why Calimoto exports fail in MIA
 
-`Tour vom 2026-11-14.gpx` exposes three problems a strict importer (MIA) trips
-on, while forgiving ones (Calimoto, Kurviger) silently tolerate them:
+A typical Calimoto tour export exposes three problems a strict importer (MIA)
+trips on, while forgiving ones (Calimoto, Kurviger) silently tolerate them:
 
 1. **GPX 1.0 namespace** (`http://www.topografix.com/GPX/1/0`, root element
    `<<gpx>>`, `<doc>` metadata). MIA expects GPX **1.1**.
@@ -23,10 +23,10 @@ emits a clean GPX 1.1: a **named `<trk>` line** + **named waypoints**
 
 - GPX 1.1 (`version="1.1"`, `creator="calimoto2mia"`, proper schemaLocation)
 - `<metadata>` with the tour name (taken from the file name)
-- The 4 via-points as named/typed `<wpt>`s (`Via 1..4`, `type=via`)
+- Via-points (Calimoto allows up to 4) as named/typed `<wpt>`s (`Via 1..n`, `type=via`)
 - `Start` (Flag, Green) and `Finish` (Flag, Red) `<wpt>`s at the line ends
-- All 408 points as a `<trk><trkseg>` road line — same coordinates as
-  Kurviger's export (verified point-by-point)
+- All route points as a `<trk><trkseg>` road line — coordinates identical to
+  the input route (`kurviger-sample.gpx` shows the target shape)
 - Optional real elevations via the keyless Open-Meteo elevation API
   (`--ele` / the checkbox; falls back gracefully when offline)
 
