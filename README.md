@@ -32,10 +32,12 @@ emits a clean GPX 1.1: a **named `<trk>` line** + **named waypoints**
 
 Validated against the official OGC GPX 1.1 schema: 0 errors.
 
-## Android app (main tool)
+## Browser tool (main tool, designed for Android)
 
-**`calimoto2mia.html`** — a single self-contained file, runs fully offline in
-any Android browser (Chrome/Firefox); nothing is uploaded anywhere.
+**`calimoto2mia.html`** — a single self-contained file that runs fully offline
+in any modern browser (Android, desktop, tablet); nothing is uploaded anywhere.
+It is meant to run locally on the phone, but it converts entirely client-side,
+so hosting it anywhere (e.g. GitHub Pages) works just as well.
 
 Setup once:
 1. Copy `calimoto2mia.html` to the phone (or host/open it from storage).
@@ -62,7 +64,7 @@ Standard-library only, Python 3.8+. Default output: `<input>.mia.gpx`.
 
 | file | role |
 |---|---|
-| `calimoto2mia.html` | Android conversion tool (bookmark/add-to-home-screen) |
+| `calimoto2mia.html` | browser conversion tool (add-to-home-screen on Android) |
 | `calimoto2mia.py` | desktop/reference converter |
 | `kurviger-sample.gpx` | genuine Kurviger export — the target output shape to match |
 | `gpx11.xsd` | OGC GPX 1.1 schema used for validation |
