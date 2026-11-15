@@ -13,7 +13,7 @@ that shape; this tool does the same rewrite locally, no account needed.
 
 Usage
 -----
-    python3 calimoto2mia.py "Tour vom 2026-11-14.gpx"
+    python3 calimoto2mia.py calimoto-export.gpx
     python3 calimoto2mia.py tour.gpx out.gpx
     python3 calimoto2mia.py tour.gpx --ele          # fetch real elevation online
 """
