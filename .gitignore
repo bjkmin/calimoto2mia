@@ -1,0 +1,6 @@
+# tour data (personal routes, regenerable)
+*.gpx
+# but keep the Kurviger reference sample (public CDN route, target output shape)
+!kurviger-sample.gpx
+__pycache__/
+.DS_Store

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calimoto → Aprilia MIA converter</title>
+<style>
+  :root { --bg:#101318; --card:#1a2029; --fg:#e8ecf2; --dim:#93a0b0; --acc:#e0403f; --ok:#3ecf8e; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px 16px 48px; background:var(--bg); color:var(--fg);
+         font:16px/1.5 system-ui, sans-serif; max-width:640px; margin-inline:auto; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:14px; margin-bottom:24px; }
+  .card { background:var(--card); border:1px solid #2a3340; border-radius:14px; padding:18px; margin-bottom:16px; }
+  input[type=file] { width:100%; color:var(--dim); }
+  label.ele { display:flex; gap:10px; align-items:center; margin-top:14px; font-size:15px; color:var(--dim); }
+  button { width:100%; padding:14px; font-size:17px; font-weight:600; border:0; border-radius:12px;
+           background:var(--acc); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.45; }
+  .log { white-space:pre-wrap; font:13px/1.6 ui-monospace, monospace; color:var(--dim); margin-top:12px; }
+  .log .ok { color:var(--ok); }
+  .log .err { color:var(--acc); }
+  a.dl { display:none; width:100%; padding:14px; border-radius:12px; background:var(--ok);
+         color:#06281a; font-weight:700; text-align:center; text-decoration:none; margin-top:12px; }
+  ol { color:var(--dim); font-size:14px; padding-left:20px; }
+  footer { color:#5b6775; font-size:12px; margin-top:28px; }
+</style>
+</head>
+<body>
+<h1>Calimoto → Aprilia MIA</h1>
+<p class="sub">Rewrites a Calimoto GPX export into the Kurviger-style shape the MIA app accepts
+(named waypoints + track line). Fully offline — your file never leaves the phone.</p>
+
+<div class="card">
+  <input type="file" id="file" accept=".gpx,application/gpx+xml,text/xml">
+  <label class="ele"><input type="checkbox" id="ele"> fetch real elevations online (open-meteo.com)</label>
+  <div style="margin-top:16px"><button id="go" disabled>Convert</button></div>
+  <div class="log" id="log"></div>
+  <a class="dl" id="dl">Download converted .gpx</a>
+</div>
+
+<div class="card">
+  <b>How to use</b>
+  <ol>
+    <li>In Calimoto: export the tour as GPX (share → send to file / save to Downloads).</li>
+    <li>Open this page (bookmark it — it works offline), pick the .gpx file.</li>
+    <li>Convert, then tap <i>Download</i>.</li>
+    <li>Open the downloaded file with the Aprilia MIA app (or import it in the app from the Downloads folder).</li>
+  </ol>
+</div>
+<footer>calimoto2mia · single-file tool, no account, no server · logic mirrors calimoto2mia.py</footer>
+
+<script>
+const NS = "http://www.topografix.com/GPX/1/1";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const num = v => Number(v).toFixed(6);
+function log(msg, cls) { const p=document.createElement("div"); if(cls)p.className=cls; p.textContent=msg; $("#log").appendChild(p); }
+
+// tag-name matching works regardless of namespace (Calimoto uses the default GPX ns)
+function kids(el, tag) { return [...el.children].filter(c => c.localName === tag); }
+function txt(el) { return el ? (el.textContent || "").trim() : ""; }
+
+async function fetchElevations(pts) {
+  const eles = new Array(pts.length).fill(null);
+  for (let i = 0; i < pts.length; i += 100) {
+    const chunk = pts.slice(i, i + 100);
+    const url = "https://api.open-meteo.com/v1/elevation?latitude="
+      + chunk.map(([lat]) => lat.toFixed(6)).join(",")
+      + "&longitude=" + chunk.map(([, lon]) => lon.toFixed(6)).join(",");
+    try {
+      const data = await (await fetch(url)).json();
+      (data.elevation || []).forEach((e, j) => { if (typeof e === "number") eles[i + j] = e; });
+      log(`  elevation ${Math.min(i + 100, pts.length)}/${pts.length}`);
+    } catch (e) { log(`  elevation batch ${i / 100 + 1} failed (continuing without)`, "err"); }
+  }
+  return eles;
+}
+
+$("#file").addEventListener("change", () => { $("#go").disabled = !$("#file").files.length; $("#dl").style.display = "none"; });
+
+$("#go").addEventListener("click", async () => {
+  const f = $("#file").files[0]; if (!f) return;
+  $("#go").disabled = true; $("#log").innerHTML = ""; $("#dl").style.display = "none";
+  try {
+    const doc = new DOMParser().parseFromString(await f.text(), "application/xml");
+    if (doc.getElementsByTagName("parsererror").length) throw new Error("File is not valid XML/GPX");
+
+    // collect route points (fall back to an existing track)
+    let line = [];
+    for (const rte of doc.getElementsByTagName("rte"))
+      for (const p of rte.getElementsByTagName("rtept")) line.push(p);
+    if (!line.length)
+      for (const seg of doc.getElementsByTagName("trkseg"))
+        for (const p of seg.getElementsByTagName("trkpt")) line.push(p);
+    if (!line.length) throw new Error("No route points found — is this a Calimoto tour export?");
+
+    const gpx = doc.documentElement;
+    const meta = kids(gpx, "metadata")[0] || kids(gpx, "doc")[0];
+    const rte0 = doc.getElementsByTagName("rte")[0];
+    const name = txt(meta && kids(meta, "name")[0]) || txt(rte0 && kids(rte0, "name")[0]) || "Route";
+    const desc = txt(meta && kids(meta, "desc")[0]);
+
+    let eles = null;
+    if ($("#ele").checked) {
+      log(`fetching elevation for ${line.length} points …`);
+      eles = await fetchElevations(line.map(p => [Number(p.getAttribute("lat")), Number(p.getAttribute("lon"))]));
+    }
+
+    // build Kurviger-style GPX 1.1
+    const out = [];
+    out.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+    out.push(`<gpx version="1.1" creator="calimoto2mia" xmlns="${NS}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="${NS} http://www.topografix.com/GPX/1/1/gpx.xsd">`);
+    out.push(`<metadata><name>${esc(name)}</name>`);
+    if (desc) out.push(`<desc>${esc(desc)}</desc>`);
+    out.push(`<link href="https://calimoto.com"><text>Converted from Calimoto export</text></link>`);
+    out.push(`<time>${new Date().toISOString().replace(/\.\d+Z$/, "Z")}</time></metadata>`);
+
+    // original via-points, named + typed
+    let via = 0;
+    for (const w of doc.getElementsByTagName("wpt")) {
+      let wname = txt(kids(w, "name")[0]);
+      if (!wname) wname = `Via ${++via}`;
+      const sym = txt(kids(w, "sym")[0]) || "Waypoint";
+      const type = txt(kids(w, "type")[0]) || "via";
+      const d = txt(kids(w, "desc")[0]);
+      out.push(`<wpt lat="${num(w.getAttribute("lat"))}" lon="${num(w.getAttribute("lon"))}"><name>${esc(wname)}</name>` +
+        (d ? `<desc>${esc(d)}</desc>` : "") + `<sym>${esc(sym)}</sym><type>${esc(type)}</type></wpt>`);
+    }
+
+    // start/finish markers at the line ends (Kurviger style)
+    const first = line[0], last = line[line.length - 1];
+    out.push(`<wpt lat="${num(first.getAttribute("lat"))}" lon="${num(first.getAttribute("lon"))}"><name>Start</name><sym>Flag, Green</sym><type>start</type></wpt>`);
+    out.push(`<wpt lat="${num(last.getAttribute("lat"))}" lon="${num(last.getAttribute("lon"))}"><name>Finish</name><sym>Flag, Red</sym><type>finish</type></wpt>`);
+
+    // the road line as a track
+    out.push(`<trk><name>${esc(name)}</name><trkseg>`);
+    for (let i = 0; i < line.length; i++) {
+      const p = line[i];
+      const srcEle = kids(p, "ele")[0];
+      let eleTag = "";
+      if (eles && eles[i] != null) eleTag = `<ele>${eles[i].toFixed(1)}</ele>`;
+      else if (srcEle && srcEle.textContent.trim()) eleTag = `<ele>${esc(srcEle.textContent.trim())}</ele>`;
+      out.push(`<trkpt lat="${num(p.getAttribute("lat"))}" lon="${num(p.getAttribute("lon"))}">${eleTag}</trkpt>`);
+    }
+    out.push(`</trkseg></trk></gpx>`);
+
+    const xml = out.join("");
+    // sanity check: re-parse and count
+    const chk = new DOMParser().parseFromString(xml, "application/xml");
+    const nTrk = chk.getElementsByTagName("trkpt").length;
+    const nWpt = chk.getElementsByTagName("wpt").length;
+    if (!nTrk) throw new Error("Internal error: produced file has no track points");
+
+    const base = f.name.replace(/\.gpx$/i, "");
+    const blob = new Blob([xml], { type: "application/gpx+xml" });
+    const dl = $("#dl");
+    dl.href = URL.createObjectURL(blob);
+    dl.download = base + ".mia.gpx";
+    dl.style.display = "block";
+    log(`OK — ${base}.mia.gpx`, "ok");
+    log(`${nTrk} track points · ${nWpt} waypoints (4 named via + start/finish)` + (eles ? " · with elevation" : " · no elevation"));
+    log(`Now open this file with the Aprilia MIA app.`);
+  } catch (e) {
+    log("ERROR: " + e.message, "err");
+  } finally {
+    $("#go").disabled = false;
+  }
+});
+</script>
+</body>
+</html>

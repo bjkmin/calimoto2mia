@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="Kurviger.de" version="1.1" xmlns:gh="https://kurviger.de/public/schema/gpx/1.1">
+<metadata>
+<name>Demo-01-POI-Route</name>
+<copyright author="OpenStreetMap contributors"/>
+<link href="https://kurviger.de">
+<text>Kurviger.de GPX</text>
+</link>
+<time>2024-07-21T19:12:16Z</time>
+</metadata>
+<wpt lat="48.891629" lon="8.237211"><name>Zuhause</name><desc>Continue onto Rosenstraße</desc><sym>Flag, Green</sym><type>start</type></wpt>
+<wpt lat="49.280295" lon="8.722891"><name>A 6</name><desc>Continue onto A 6</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="49.464931" lon="8.975823"><name>Uferstraße, B 37</name><desc>Continue onto Uferstraße, B 37</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="49.499551" lon="8.961245"><name>Waypoint 1</name><desc>Waypoint 1</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="49.656307" lon="9.208311"><name>B 47</name><desc>Continue onto B 47</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.006554" lon="9.235536"><name>B 26</name><desc>Continue onto B 26</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.14914" lon="9.401323"><name>Waypoint 2</name><desc>Waypoint 2</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.276895" lon="9.266064"><name>Herzgrabenstraße, L 3194</name><desc>Continue onto Herzgrabenstraße, L 3194</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.245737" lon="9.034216"><name>L 3189</name><desc>Continue onto L 3189</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.289615" lon="8.920669"><name>L 3189</name><desc>Continue onto L 3189</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.290077" lon="8.676607"><name>B 455</name><desc>Continue onto B 455</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.317083" lon="8.513306"><name>K 723</name><desc>Continue onto K 723</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.372464" lon="8.463649"><name>Hauptstraße, K 759</name><desc>Continue onto Hauptstraße, K 759</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.409683" lon="8.439572"><name>Waypoint 3</name><desc>Waypoint 3</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.418962" lon="8.593604"><name>Weiperfeldener Straße, L 3053</name><desc>Continue onto Weiperfeldener Straße, L 3053</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.53174" lon="8.861361"><name>Oberstadt</name><desc>Continue onto Oberstadt</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.686312" lon="8.996511"><name>L 3072</name><desc>Continue onto L 3072</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.772788" lon="9.106333"><name>Neustädter Straße, L 3071</name><desc>Continue onto Neustädter Straße, L 3071</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.873621" lon="9.188945"><name>Wasenberger Straße, L 3145</name><desc>Continue onto Wasenberger Straße, L 3145</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="51.02477" lon="9.434633"><name>Waypoint 4</name><desc>Waypoint 4</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="51.014793" lon="9.457111"><name>B 323</name><desc>Continue onto B 323</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="51.003548" lon="9.928146"><name>L 3249</name><desc>Continue onto L 3249</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.995168" lon="10.282376"><name>B 19</name><desc>Continue onto B 19</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="51.016758" lon="10.532782"><name>Friedrichswerther Straße, L 1029</name><desc>Continue onto Friedrichswerther Straße, L 1029</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.995618" lon="10.736352"><name>Tonnaer Straße, K 4</name><desc>Continue onto Tonnaer Straße, K 4</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.924759" lon="10.946649"><name>Ingerslebener Straße, K 25</name><desc>Continue onto Ingerslebener Straße, K 25</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.913404" lon="11.141657"><name>Erfurter Straße, L 2155</name><desc>Continue onto Erfurter Straße, L 2155</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.939467" lon="11.429681"><name>Lehnstedter Straße, K 306</name><desc>Continue onto Lehnstedter Straße, K 306</desc><sym>Waypoint</sym><type>shaping</type></wpt>
+<wpt lat="50.926865" lon="11.584941"><name>Hotel, Ibis, Jena, Teichgraben 1</name><desc>Arrive at destination</desc><sym>Flag, Red</sym><type>destination</type></wpt>
+</gpx>
