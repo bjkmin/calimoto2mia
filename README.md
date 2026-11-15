@@ -10,9 +10,9 @@ trips on, while forgiving ones (Calimoto, Kurviger) silently tolerate them:
 
 1. **GPX 1.0 namespace** (`http://www.topografix.com/GPX/1/0`, root element
    `<<gpx>>`, `<doc>` metadata). MIA expects GPX **1.1**.
-2. **An empty `<rte>` with 408 route points but no `<name>`** anywhere —
+2. **An empty `<rte>` with all route points but no `<name>`** anywhere —
    no route name, no start/finish, nothing displayable as a tour.
-3. **4 anonymous via-point `<wpt>`s with no `<name>`/`<sym>`**, and **no
+3. **Anonymous via-point `<wpt>`s with no `<name>`/`<sym>`**, and **no
    `<ele>` elevation** anywhere.
 
 Kurviger "works" because on import it normalizes all of this and on export
